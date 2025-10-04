@@ -6,6 +6,7 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { MathComponent } from "mathjax-react";
 
 
 const GEMINI_API_KEY="AIzaSyBTPo7ow_5wZZWiSadpFkDmG1SelAa8rWU"
@@ -166,13 +167,6 @@ io.on("connection", (socket) => {
         room.roundNumber++;
         io.to(roomCode).emit("new_problem", nextProblem);
     }, 1000);
-
-    
-
-
-
-    
-
   });
 
 
@@ -242,7 +236,7 @@ async function startGame(roomCode) {
       io.to(roomCode).emit("new_problem", problem);
       io.to(roomCode).emit("game_started");
 
-      room.timeRemaining = 30;
+      room.timeRemaining = 90;
       gameTimers[roomCode] = setInterval(() => {
         room.timeRemaining--;
         io.to(roomCode).emit("time_update", room.timeRemaining);
@@ -297,6 +291,23 @@ function endGame(roomCode) {
       duration: Date.now() - room.gameStartTime,
     },
   });
+}
+
+// --- utility function to clean the question ---
+function formatMath(question) {
+  let formatted = question;
+
+  // Escape multiplication signs and exponents
+  formatted = formatted.replace(/\*/g, "·"); // optional: replace * with dot
+  formatted = formatted.replace(/\^(\d+)/g, "^{$1}"); // 3x^2 -> 3x^{2}
+
+  // Add proper LaTeX text formatting
+  formatted = formatted.replace(/find/gi, "\\text{find}");
+  formatted = formatted.replace(/f\((.*?)\)/g, "f($1)"); // ensure parentheses stay normal
+  formatted = formatted.replace(/=/g, "="); // no change, but you can stylize if needed
+
+  // Wrap entire thing in math mode
+  return formatted;
 }
 
 
