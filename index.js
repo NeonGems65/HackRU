@@ -1,33 +1,35 @@
+// index.js
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
-app.use(cors());
-
-// Example API route
-app.get("/api/ping", (req, res) => res.json({ ok: true, time: Date.now() }));
-
-// Create HTTP + Socket.IO
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*", // for hackathon/dev. Lock this down in prod.
+    origin: "*", // ⚠️ for dev/hackathon; restrict in prod
     methods: ["GET", "POST"]
   }
 });
 
-// Simple in-memory rooms (expand as needed)
+app.use(cors());
+app.use(express.json());
+
+// 🧮 Simple in-memory game state
 const rooms = {};
 
 io.on("connection", (socket) => {
-  console.log("socket connected:", socket.id);
+  console.log("Socket connected:", socket.id);
 
   socket.on("join_room", (roomCode, username) => {
     socket.join(roomCode);
-    if (!rooms[roomCode]) rooms[roomCode] = { players: {} };
+    if (!rooms[roomCode]) rooms[roomCode] = { players: {}, currentProblem: null };
     rooms[roomCode].players[socket.id] = { username, score: 0 };
     io.to(roomCode).emit("room_update", rooms[roomCode]);
   });
@@ -39,41 +41,35 @@ io.on("connection", (socket) => {
   });
 
   socket.on("submit_answer", ({ roomCode, answer }) => {
-    const problem = rooms[roomCode]?.currentProblem;
-    if (!problem) return;
-    if (Number(answer) === problem.answer) {
-      rooms[roomCode].players[socket.id].score += 1;
+    const room = rooms[roomCode];
+    if (!room?.currentProblem) return;
+
+    if (Number(answer) === room.currentProblem.answer) {
+      room.players[socket.id].score += 1;
     }
-    io.to(roomCode).emit("room_update", rooms[roomCode]);
-    const next = generateProblem();
-    rooms[roomCode].currentProblem = next;
-    io.to(roomCode).emit("new_problem", next);
+
+    io.to(roomCode).emit("room_update", room);
+
+    const nextProblem = generateProblem();
+    room.currentProblem = nextProblem;
+    io.to(roomCode).emit("new_problem", nextProblem);
   });
 
   socket.on("disconnect", () => {
-    for (const rc of Object.keys(rooms)) {
-      if (rooms[rc].players[socket.id]) {
-        delete rooms[rc].players[socket.id];
-        io.to(rc).emit("room_update", rooms[rc]);
+    for (const [roomCode, room] of Object.entries(rooms)) {
+      if (room.players[socket.id]) {
+        delete room.players[socket.id];
+        io.to(roomCode).emit("room_update", room);
       }
     }
   });
 });
 
-// Very simple problem generator
 function generateProblem() {
   const a = Math.floor(Math.random() * 10) + 1;
   const b = Math.floor(Math.random() * 10) + 1;
   return { question: `${a} + ${b}`, answer: a + b };
 }
 
-// Serve the client (Vite builds to client/dist)
-const clientDist = path.join(process.cwd(), "client", "dist");
-app.use(express.static(clientDist));
-app.get("*", (req, res) => {
-  res.sendFile(path.join(clientDist, "index.html"));
-});
-
-// Render/Heroku provide PORT in env
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Server listening on ${PORT}`));
+server.listen(PORT, () => console.log(`✅ Server listening on port ${PORT}`));
