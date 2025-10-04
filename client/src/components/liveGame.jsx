@@ -50,14 +50,18 @@ export default function LiveGame({ onGameEnd }) {
       setCurrentPlayer(me);
     });
 
-    socket.on("countdown", (num) => setCountdown(num));
+    socket.on("countdown", (num) => {
+      setGameState("countdown");
+      setCountdown(num);
+});
 
     socket.on("time_update", (time) => setTimeRemaining(time));
 
     socket.on("game_started", () => {
       setGameState("playing");
       setCountdown(0);
-    });
+      problemStartTime.current = Date.now();
+});
 
     socket.on("game_ended", (results) => {
       setGameState("finished");

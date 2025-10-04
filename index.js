@@ -5,10 +5,6 @@ import { Server } from "socket.io";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-GEMINI_API_KEY="AIzaSyBTPo7ow_5wZZWiSadpFkDmG1SelAa8rWU"
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -60,10 +56,20 @@ io.on("connection", (socket) => {
       correctAnswers: 0,
       totalAnswers: 0,
       isReady: false,
+      // per-player state:
+      currentProblem: null,
+      roundNumber: 0,
     };
 
     io.to(roomCode).emit("room_update", rooms[roomCode]);
   });
+
+  // --- START GAME manually ---
+socket.on("start_game", (roomCode) => {
+  console.log(`🕹️ Manual start triggered by ${socket.id} in ${roomCode}`);
+  startGame(roomCode);
+});
+
 
   // --- PLAYER READY ---
   socket.on("player_ready", (roomCode) => {
@@ -135,10 +141,18 @@ io.on("connection", (socket) => {
     // Generate next problem
     setTimeout(() => {
       const nextProblem = generateProblem();
-      room.currentProblem = nextProblem;
-      room.roundNumber++;
-      io.to(roomCode).emit("new_problem", nextProblem);
+        room.currentProblem = nextProblem;
+        room.roundNumber++;
+        io.to(roomCode).emit("new_problem", nextProblem);
+        io.to(roomCode).emit("room_update", room);
     }, 1000);
+
+    
+
+
+
+    
+
   });
 
   // --- DISCONNECT HANDLER ---
@@ -170,7 +184,13 @@ io.on("connection", (socket) => {
 // --- GAME LOGIC FUNCTIONS ---
 
 function startGame(roomCode) {
+
+  
   const room = rooms[roomCode];
+
+  if (room.isCountingDown) return;
+  room.isCountingDown = true;
+
   if (!room || room.gameState === "playing") return;
 
   room.gameState = "playing";
@@ -191,6 +211,7 @@ function startGame(roomCode) {
     countdown--;
 
     if (countdown < 0) {
+      room.isCountingDown = false;
       clearInterval(countdownInterval);
       io.to(roomCode).emit("game_started");
       const problem = generateProblem();
@@ -199,11 +220,28 @@ function startGame(roomCode) {
 
       // ✅ Step 3: Sync everyone with latest room data
       io.to(roomCode).emit("room_update", room);
+      
 
       room.timeRemaining = 30;
       gameTimers[roomCode] = setInterval(() => {
         room.timeRemaining--;
         io.to(roomCode).emit("time_update", room.timeRemaining);
+        // create and send a separate problem to each player so each advances independently
+      Object.keys(room.players).forEach((playerSocketId) => {
+        const p = room.players[playerSocketId];
+        p.score = 0;
+        p.streak = 0;
+        p.totalTime = 0;
+        p.correctAnswers = 0;
+        p.totalAnswers = 0;
+        p.roundNumber = 1;
+        const perPlayerProblem = generateProblem();
+        p.currentProblem = perPlayerProblem;
+        // include the player's roundNumber so client can display it
+        io.to(playerSocketId).emit("new_problem", { ...perPlayerProblem, roundNumber: p.roundNumber });
+      });
+      // Sync everyone with latest room / player states
++      io.to(roomCode).emit("room_update", room);
 
         if (room.timeRemaining <= 0) {
           endGame(roomCode);

@@ -146,7 +146,7 @@ export default function Lobby() {
         </button>
         
         <h1 className="title">🧮 Math Battle</h1>
-        <p className="subtitle">Compete in real-time math challenges!</p>
+        <p className="subtitle">Compete in multiplayer real-time math challenges</p>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -179,11 +179,18 @@ export default function Lobby() {
           </button>
         </div>
 
-        <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.7)' }}>
-          <p>- Answer math problems as fast as possible</p>
-          <p>- Get bonus points for speed and streaks!   !</p>
-          <p>- Compete against other players in real-time</p>
-        </div>
+      <div style={{ 
+        textAlign: 'left', 
+        color: 'rgba(255,255,255,0.7)', 
+        maxWidth: '400px', 
+        margin: '0 auto'  // centers the list block on the page
+      }}>
+        <ul style={{ listStyleType: 'disc', paddingLeft: '1.5rem', lineHeight: '1.8' }}>
+          <li>Answer math problems as fast as possible.</li>
+          <li>Compete against other players in real-time.</li>
+          <li>Learn what it takes to become an expert mathematician.</li>
+        </ul>
+      </div>
 
         <div style={{ textAlign: 'center', marginTop: '2rem' }}>
           <button 
@@ -203,7 +210,7 @@ export default function Lobby() {
               transition: 'all 0.3s ease'
             }}
           >
-            🏆 View Leaderboard
+            View Leaderboard
           </button>
         </div>
       </div>
