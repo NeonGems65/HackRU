@@ -1,26 +1,128 @@
-// client/src/components/Game.jsx
+// client/src/components/liveGame.jsx
 import React, { useEffect, useState, useRef } from "react";
 import socket from "../socket";
 
-export default function Game() {
-  const [gameState, setGameState] = useState('lobby'); // lobby, waiting, playing, finished
-  const [room, setRoom] = useState("");
-  const [username, setUsername] = useState("");
+export default function LiveGame({ room, username, onGameEnd }) {
   const [problem, setProblem] = useState(null);
   const [answer, setAnswer] = useState("");
   const [players, setPlayers] = useState([]);
-  const [countdown, setCountdown] = useState(0);
-  const [timeRemaining, setTimeRemaining] = useState(0);
+  const [countdown, setCountdown] = useState(3);
+  const [timeRemaining, setTimeRemaining] = useState(30);
   const [gameResults, setGameResults] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [currentPlayer, setCurrentPlayer] = useState(null);
+  const [gameState, setGameState] = useState('countdown'); // countdown, playing, finished
   
   const problemStartTime = useRef(null);
   const answerInputRef = useRef(null);
+  const gameTimer = useRef(null);
+  const countdownTimer = useRef(null);
+
+  // Initialize game when component mounts
+  useEffect(() => {
+    console.log("LiveGame mounted, starting game for room:", room);
+    startGame();
+    
+    return () => {
+      // Cleanup timers
+      if (countdownTimer.current) clearInterval(countdownTimer.current);
+      if (gameTimer.current) clearInterval(gameTimer.current);
+    };
+  }, []);
+
+  const startGame = () => {
+    console.log("Starting game countdown");
+    setGameState('countdown');
+    setCountdown(3);
+    
+    // Start countdown
+    countdownTimer.current = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(countdownTimer.current);
+          setGameState('playing');
+          generateNewProblem();
+          startGameTimer();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const generateNewProblem = () => {
+    const operations = ['+', '-', '*'];
+    const operation = operations[Math.floor(Math.random() * operations.length)];
+    
+    let a, b, answer, question;
+    
+    switch(operation) {
+      case '+':
+        a = Math.floor(Math.random() * 20) + 1;
+        b = Math.floor(Math.random() * 20) + 1;
+        answer = a + b;
+        question = `${a} + ${b}`;
+        break;
+      case '-':
+        a = Math.floor(Math.random() * 20) + 10;
+        b = Math.floor(Math.random() * 10) + 1;
+        answer = a - b;
+        question = `${a} - ${b}`;
+        break;
+      case '*':
+        a = Math.floor(Math.random() * 10) + 1;
+        b = Math.floor(Math.random() * 10) + 1;
+        answer = a * b;
+        question = `${a} × ${b}`;
+        break;
+    }
+    
+    const newProblem = { question, answer, roundNumber: 1 };
+    setProblem(newProblem);
+    setAnswer("");
+    problemStartTime.current = Date.now();
+    
+    if (answerInputRef.current) {
+      answerInputRef.current.focus();
+    }
+  };
+
+  const startGameTimer = () => {
+    setTimeRemaining(30);
+    gameTimer.current = setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev <= 1) {
+          endGame();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const endGame = () => {
+    clearInterval(gameTimer.current);
+    setGameState('finished');
+    
+    // Create mock results for testing
+    const mockResults = {
+      rankings: [
+        { username: username, score: 150, correctAnswers: 5, totalAnswers: 8 },
+        { username: "BotPlayer", score: 120, correctAnswers: 4, totalAnswers: 8 }
+      ],
+      gameStats: {
+        duration: 30000,
+        totalRounds: 8
+      }
+    };
+    
+    setGameResults(mockResults);
+  };
 
   useEffect(() => {
     // Socket event listeners
     socket.on("new_problem", (newProblem) => {
+      console.log("New problem received:", newProblem);
       setProblem(newProblem);
       setAnswer("");
       problemStartTime.current = Date.now();
@@ -32,7 +134,6 @@ export default function Game() {
     socket.on("room_update", (data) => {
       if (data?.players) {
         setPlayers(Object.values(data.players));
-        setGameState(data.gameState || 'waiting');
         setTimeRemaining(data.timeRemaining || 0);
         
         // Find current player
@@ -83,44 +184,31 @@ export default function Game() {
     };
   }, [username]);
 
-  const joinRoom = () => {
-    if (room && username) {
-      socket.emit("join_room", room, username);
-      setGameState('waiting');
-    }
-  };
-
-  const markReady = () => {
-    if (room && username) {
-      socket.emit("player_ready", room);
-    }
-  };
-
-  const leaveRoom = () => {
-    if (room) {
-      socket.emit("leave_room", room);
-      // Reset to lobby state
-      setGameState('lobby');
-      setGameResults(null);
-      setProblem(null);
-      setAnswer("");
-      setPlayers([]);
-      setCountdown(0);
-      setTimeRemaining(0);
-      setFeedback(null);
-      setRoom("");
-      setUsername("");
-    }
-  };
-
   const submitAnswer = () => {
-    if (answer && problemStartTime.current) {
+    if (answer && problem && problemStartTime.current) {
       const timeSpent = Date.now() - problemStartTime.current;
-      socket.emit("submit_answer", { 
-        roomCode: room, 
-        answer: parseInt(answer),
-        timeSpent 
-      });
+      const userAnswer = parseInt(answer);
+      
+      console.log("Submitting answer:", userAnswer, "Correct:", problem.answer);
+      
+      if (userAnswer === problem.answer) {
+        setFeedback({ type: 'correct', message: `+10 points! Correct!` });
+        setTimeout(() => setFeedback(null), 2000);
+        
+        // Generate next problem after a short delay
+        setTimeout(() => {
+          generateNewProblem();
+        }, 1000);
+      } else {
+        setFeedback({ type: 'incorrect', message: 'Wrong answer!' });
+        setTimeout(() => setFeedback(null), 2000);
+        
+        // Generate next problem after a short delay
+        setTimeout(() => {
+          generateNewProblem();
+        }, 1000);
+      }
+      
       setAnswer("");
     }
   };
@@ -131,213 +219,37 @@ export default function Game() {
     }
   };
 
-
-  const generateRoomCode = () => {
-    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-    setRoom(code);
+  const leaveRoom = () => {
+    if (room) {
+      socket.emit("leave_room", room);
+      onGameEnd();
+    }
   };
 
-  if (gameState === 'lobby') {
+  const playAgain = () => {
+    socket.emit("start_game", room);
+    setGameState('playing');
+    setGameResults(null);
+  };
+
+  if (gameState === 'countdown') {
     return (
-      <div className="glass-card fade-in" style={{ maxWidth: '500px', width: '100%' }}>
-        <h1 className="title">🧮 Math Battle</h1>
-        <p className="subtitle">Compete in real-time math challenges!</p>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <input
-              className="input"
-              placeholder="Room Code"
-              value={room}
-              onChange={(e) => setRoom(e.target.value.toUpperCase())}
-              style={{ flex: 1 }}
-            />
-            <button className="btn btn-secondary" onClick={generateRoomCode}>
-              Generate
-            </button>
-          </div>
-          
-          <input
-            className="input"
-            placeholder="Your Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          
-          <button 
-            className="btn" 
-            onClick={joinRoom}
-            disabled={!room || !username}
-            style={{ opacity: (!room || !username) ? 0.5 : 1 }}
-          >
-            Join Battle
-          </button>
-        </div>
-
-        <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.7)' }}>
-          <p>🎯 Answer math problems as fast as possible</p>
-          <p>⚡ Get bonus points for speed and streaks</p>
-          <p>🏆 Compete against other players in real-time</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (gameState === 'waiting') {
-    return (
-      <div className="glass-card fade-in" style={{ maxWidth: '600px', width: '100%' }}>
-        <h1 className="title">Waiting Room</h1>
-        <p className="subtitle">Room: {room}</p>
-        
-        <div style={{ marginBottom: '2rem' }}>
-          <h3 style={{ marginBottom: '1rem', color: 'rgba(255,255,255,0.9)' }}>
-            Players ({players.length}/8)
-          </h3>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' }}>
-            {players.map((player, index) => (
-              <div 
-                key={index}
-                style={{
-                  background: player.isReady ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255,255,255,0.1)',
-                  padding: '0.75rem 1rem',
-                  borderRadius: '20px',
-                  border: player.isReady ? '2px solid #22c55e' : '2px solid rgba(255,255,255,0.2)',
-                  transition: 'all 0.3s ease',
-                  transform: player.isReady ? 'scale(1.05)' : 'scale(1)'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ 
-                    fontSize: '1.2rem',
-                    fontWeight: '600',
-                    color: player.isReady ? '#22c55e' : '#ffffff'
-                  }}>
-                    {player.isReady ? '✅' : '⏳'}
-                  </span>
-                  <span style={{ 
-                    fontWeight: '600',
-                    color: player.isReady ? '#22c55e' : '#ffffff'
-                  }}>
-                    {player.username}
-                  </span>
-                  {player.isReady && (
-                    <span style={{ 
-                      fontSize: '0.8rem',
-                      color: '#22c55e',
-                      fontWeight: '500'
-                    }}>
-                      READY
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {currentPlayer && (
+      <div className="glass-card fade-in" style={{ maxWidth: '700px', width: '100%' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <h1 className="title">Get Ready!</h1>
           <div style={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
-            gap: '1rem',
-            marginBottom: '1rem' 
+            fontSize: '6rem', 
+            fontWeight: '800', 
+            color: countdown === 1 ? '#ef4444' : '#ffffff',
+            textShadow: '0 0 20px rgba(255,255,255,0.5)',
+            margin: '2rem 0'
           }}>
-            {!currentPlayer.isReady ? (
-              <button 
-                className="btn" 
-                onClick={markReady}
-                style={{ 
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  border: 'none',
-                  borderRadius: '12px',
-                  color: 'white',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)'
-                }}
-              >
-                I'm Ready!
-              </button>
-            ) : (
-              <button 
-                className="btn" 
-                disabled
-                style={{ 
-                  background: '#6b7280',
-                  border: 'none',
-                  borderRadius: '12px',
-                  color: '#9ca3af',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'not-allowed',
-                  opacity: 0.6
-                }}
-              >
-                ✅ Ready!
-              </button>
-            )}
-            
-            <button 
-              className="btn btn-secondary" 
-              onClick={leaveRoom}
-              style={{ 
-                background: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '12px',
-                color: 'white',
-                padding: '12px 24px',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-            >
-              Leave Room
-            </button>
+            {countdown}
           </div>
-        )}
-
-        {players.length >= 2 && players.every(p => p.isReady) && (
-          <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-            <div style={{ 
-              padding: '1rem',
-              background: 'rgba(34, 197, 94, 0.2)',
-              border: '2px solid #22c55e',
-              borderRadius: '12px',
-              marginBottom: '1rem'
-            }}>
-              <p style={{ color: '#22c55e', fontWeight: '600', margin: 0 }}>
-                🎉 All players ready! Click below to start the battle!
-              </p>
-            </div>
-            <button 
-              className="btn" 
-              onClick={() => socket.emit("start_game", room)}
-              style={{ 
-                background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-                border: 'none',
-                borderRadius: '12px',
-                color: 'white',
-                padding: '14px 28px',
-                fontSize: '18px',
-                fontWeight: '700',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 6px 20px rgba(34, 197, 94, 0.4)',
-                animation: 'pulse 2s infinite'
-              }}
-            >
-              🚀 START BATTLE!
-            </button>
-          </div>
-        )}
-
+          <p style={{ fontSize: '1.2rem', color: 'rgba(255,255,255,0.8)' }}>
+            Math Battle starting in {countdown} seconds...
+          </p>
+        </div>
       </div>
     );
   }
@@ -345,20 +257,7 @@ export default function Game() {
   if (gameState === 'playing') {
     return (
       <div className="glass-card fade-in" style={{ maxWidth: '700px', width: '100%' }}>
-        {countdown > 0 && (
-          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <div style={{ 
-              fontSize: '4rem', 
-              fontWeight: '800', 
-              color: countdown === 1 ? '#ef4444' : '#ffffff',
-              textShadow: '0 0 20px rgba(255,255,255,0.5)'
-            }}>
-              {countdown}
-            </div>
-          </div>
-        )}
-
-        {countdown === 0 && (
+        {problem && (
           <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
               <div>
@@ -522,7 +421,7 @@ export default function Game() {
         </div>
 
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-          <button className="btn" onClick={() => socket.emit("start_game", room)}>
+          <button className="btn" onClick={playAgain}>
             Play Again
           </button>
           <button className="btn btn-secondary" onClick={leaveRoom}>

@@ -1,6 +1,6 @@
 // src/App.jsx
-import Game from "./components/Game";
 import "./App.css";
+import Game from "./components/lobby";
 
 
 export default function App() {
