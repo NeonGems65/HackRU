@@ -181,7 +181,7 @@ export default function Lobby() {
 
         <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.7)' }}>
           <p>- Answer math problems as fast as possible</p>
-          <p>- Get bonus points for speed and streaks</p>
+          <p>- Get bonus points for speed and streaks!   !</p>
           <p>- Compete against other players in real-time</p>
         </div>
 

@@ -1,7 +1,6 @@
-
 import React, { useEffect, useState, useRef } from "react";
 import socket from "../socket";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 

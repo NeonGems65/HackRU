@@ -5,6 +5,10 @@ import { Server } from "socket.io";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+GEMINI_API_KEY="AIzaSyBTPo7ow_5wZZWiSadpFkDmG1SelAa8rWU"
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,10 +16,10 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const server = http.createServer(app);
 
-// 🧠 Create Socket.IO server
+//Create Socket.IO server
 const io = new Server(server, {
   cors: {
-    origin: "*", // ⚠️ For dev only — replace with your frontend URL on Vercel in prod
+    origin: "*", //For dev only — replace with your frontend URL on Vercel in prod
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -24,11 +28,11 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
-// 🧮 Game state
+//Game state
 const rooms = {};
 const gameTimers = {};
 
-// ✅ SOCKET.IO EVENTS
+//SOCKET.IO EVENTS
 io.on("connection", (socket) => {
   console.log("🟢 Socket connected:", socket.id);
 
@@ -188,10 +192,13 @@ function startGame(roomCode) {
 
     if (countdown < 0) {
       clearInterval(countdownInterval);
+      io.to(roomCode).emit("game_started");
       const problem = generateProblem();
       room.currentProblem = problem;
       io.to(roomCode).emit("new_problem", problem);
-      io.to(roomCode).emit("game_started");
+
+      // ✅ Step 3: Sync everyone with latest room data
+      io.to(roomCode).emit("room_update", room);
 
       room.timeRemaining = 30;
       gameTimers[roomCode] = setInterval(() => {
