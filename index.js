@@ -98,6 +98,7 @@ io.on("connection", (socket) => {
 
   // --- SUBMIT ANSWER ---
   socket.on("submit_answer", ({ roomCode, answer, timeSpent }) => {
+    console.log("submit answer moment")
     const room = rooms[roomCode];
     if (!room?.currentProblem || room.gameState !== "playing") return;
 

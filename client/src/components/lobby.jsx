@@ -1,13 +1,20 @@
 // client/src/components/lobby.jsx
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import socket from "../socket";
-import LiveGame from "./liveGame";
 
 export default function Lobby() {
-  const [gameState, setGameState] = useState('lobby'); // lobby, waiting, playing, finished
+  const [gameState, setGameState] = useState('lobby'); // lobby, waiting
   const [room, setRoom] = useState("");
   const [username, setUsername] = useState("");
   const [players, setPlayers] = useState([]);
+
+  // Navigation to leaderboard - define before JSX that uses it
+  const navigate = useNavigate();
+  const goToLeaderboard = () => {
+    console.log('Lobby: goToLeaderboard clicked');
+    navigate("/leaderboard");
+  };
   const [currentPlayer, setCurrentPlayer] = useState(null);
 
   // Test function to jump directly to game
@@ -20,7 +27,8 @@ export default function Lobby() {
       { username: "BotPlayer", score: 0, streak: 0, isReady: true }
     ]);
     setCurrentPlayer({ username: "TestPlayer", score: 0, streak: 0, isReady: true });
-    setGameState('playing');
+    // Navigate to game page
+    navigate("/game");
   };
 
   useEffect(() => {
@@ -41,7 +49,8 @@ export default function Lobby() {
 
     socket.on("game_started", () => {
       console.log("Game started!");
-      setGameState('playing');
+      // Navigate to game page when game starts
+      navigate("/game");
     });
 
     socket.on("disconnect", () => {
@@ -91,10 +100,11 @@ export default function Lobby() {
     console.log("Starting game for room:", room);
     if (room) {
       socket.emit("start_game", room);
-      // Force transition to playing state
-      setTimeout(() => {
-        setGameState('playing');
-      }, 100);
+      localStorage.setItem("room", room);
+      localStorage.setItem("username", username);
+      localStorage.setItem("players", JSON.stringify(players));
+      // Navigate to game page
+      navigate("/game");
     }
   };
 
@@ -173,6 +183,28 @@ export default function Lobby() {
           <p>- Answer math problems as fast as possible</p>
           <p>- Get bonus points for speed and streaks</p>
           <p>- Compete against other players in real-time</p>
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+          <button 
+            type="button"
+            className="btn btn-secondary" 
+            onClick={() => { console.log('View Leaderboard clicked'); goToLeaderboard(); }}
+            style={{ 
+              background: 'rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '12px',
+              color: 'white',
+              padding: '12px 24px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            🏆 View Leaderboard
+          </button>
         </div>
       </div>
     );
@@ -334,17 +366,6 @@ export default function Lobby() {
         )}
 
       </div>
-    );
-  }
-
-  // If game is playing or finished, show LiveGame component
-  if (gameState === 'playing' || gameState === 'finished') {
-    return (
-      <LiveGame 
-        room={room} 
-        username={username} 
-        onGameEnd={handleGameEnd}
-      />
     );
   }
 

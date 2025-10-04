@@ -1,7 +1,9 @@
 // src/App.jsx
 import "./App.css";
-import Game from "./components/lobby";
-
+import { Routes, Route } from "react-router-dom";
+import Lobby from "./components/lobby";
+import LiveGame from "./components/liveGame";
+import Leaderboard from "./components/leaderboard";
 
 export default function App() {
   return (
@@ -14,8 +16,11 @@ export default function App() {
           <div className="shape shape-4"></div>
         </div>
       </div>
-      <Game />
-      
+      <Routes>
+        <Route path="/" element={<Lobby />} />
+        <Route path="/game" element={<LiveGame />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
+      </Routes>
     </div>
   );
 }
