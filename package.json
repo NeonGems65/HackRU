@@ -1,0 +1,20 @@
+{
+  "name": "math-game",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "install-client": "cd client && npm install",
+    "build-client": "cd client && npm run build",
+    "postinstall": "npm run install-client",
+    "build": "npm run build-client",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
