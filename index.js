@@ -7,7 +7,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-GEMINI_API_KEY="AIzaSyBTPo7ow_5wZZWiSadpFkDmG1SelAa8rWU"
+const GEMINI_API_KEY="AIzaSyBTPo7ow_5wZZWiSadpFkDmG1SelAa8rWU"
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const __filename = fileURLToPath(import.meta.url);
