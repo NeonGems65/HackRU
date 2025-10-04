@@ -2,10 +2,13 @@
 import { io } from "socket.io-client";
 
 // ✅ LOCAL development
-const socket = io("http://10.74.130.215:3000",
-  {  transports: ["websocket"], // force websocket (fixes xhr poll errors)
-}
-);
+// const socket = io(`http://${window.location.hostname}:3000`, {
+//   transports: ["websocket"], // force websocket (fixes xhr poll errors)
+// });
+
+const socket = io(`10.74.133.160:3000`, {
+  transports: ["websocket"], // force websocket (fixes xhr poll errors)
+});
 
 // When leaving the page or refreshing
 window.addEventListener("beforeunload", () => {
