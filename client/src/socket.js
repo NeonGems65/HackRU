@@ -2,11 +2,10 @@
 import { io } from "socket.io-client";
 
 // const BACKEND_URL = import.meta.env.PROD
-//   ? "https://hackru-frontend.onrender.com/"
+//   ? "https://hackru-backend.onrender.com/"
 //   : `http://${window.location.hostname}:3000`;
 
-const BACKEND_URL = "https://hackru-frontend.onrender.com/";
-
+const BACKEND_URL = "https://hackru-backend.onrender.com/";
 
 //✅ LOCAL development
 const socket = io(BACKEND_URL, {
