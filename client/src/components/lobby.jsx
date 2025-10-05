@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import socket from "../socket";
+import GlassSurface from "./GlassSurface";
+import PixelCard from "./PixelCard";
 
 export default function Lobby() {
   const [gameState, setGameState] = useState('lobby'); // lobby, waiting
@@ -123,12 +125,30 @@ export default function Lobby() {
 
   if (gameState === 'lobby') {
     return (
-      <div className="glass-card fade-in" style={{ maxWidth: '600px', width: '100%', position: 'relative' }}>
-        <h1 className="title">🧮 Math Battle</h1>
+      <div>
+       
+      <div className="glass-card fade-in" style={{  maxWidth: '600px', width: '100%'}}>
+
+{/* <GlassSurface 
+  width={300} 
+  height={200}
+  borderRadius={24}
+  className="my-custom-class"
+>
+  <h2>Glass Surface Content</h2>
+</GlassSurface> */}
+
+
+        
+        <h1 className="title ">🧮 Math Battle</h1>
         <p className="subtitle">Compete in multiplayer real-time math challenges</p>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
+
+
+
+            
             <input
               className="input"
               placeholder="Room Code"
@@ -136,9 +156,9 @@ export default function Lobby() {
               onChange={(e) => setRoom(e.target.value.toUpperCase())}
               style={{ flex: 1 }}
             />
-            <button className="btn btn-secondary" onClick={generateRoomCode}>
+            <GlassSurface className="btn btn-secondary" onClick={generateRoomCode}>
               Generate
-            </button>
+            </GlassSurface>
           </div>
           
           <input
@@ -193,6 +213,8 @@ export default function Lobby() {
           </button>
         </div>
       </div>
+
+    </div>
     );
   }
 
