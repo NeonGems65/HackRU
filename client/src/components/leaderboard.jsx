@@ -20,7 +20,7 @@ export default function Leaderboard() {
         const results = JSON.parse(storedResults);
         setGameResults(results);
         setLoading(false);
-        return; // we already have results, no need to set up socket listener
+        return;
       } catch (error) {
         console.error('Error parsing stored game results:', error);
       }
@@ -31,7 +31,6 @@ export default function Leaderboard() {
       console.log("Game results received:", results);
       setGameResults(results);
       setLoading(false);
-      // persist so user can revisit leaderboard
       try {
         localStorage.setItem('gameResults', JSON.stringify(results));
       } catch (e) {

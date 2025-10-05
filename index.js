@@ -109,7 +109,6 @@ io.on("connection", (socket) => {
 
   // --- SUBMIT ANSWER ---
   socket.on("submit_answer", ({ roomCode, answer, timeSpent }) => {
-    console.log('sdlkfjsdlkfjs;ldjf')
     console.log(answer);
     console.log(problem)
     console.log(problem.answer);
@@ -123,7 +122,7 @@ io.on("connection", (socket) => {
     player.totalTime += timeSpent || 0;
 
 
-    if (answer === problem.answer) {
+    if (parseInt(answer) === parseInt(problem.answer)) {
       player.correctAnswers++;
       player.streak++;
       console.log("Correct answer by", player.username);
@@ -286,80 +285,123 @@ function endGame(roomCode) {
   });
 }
 
-// --- UTILITY: FORMAT MATH ---
-function formatMath(question) {
-  let formatted = question;
-
-  formatted = formatted.replace(/\*/g, "·");
-  formatted = formatted.replace(/\^(\d+)/g, "^{$1}");
-  formatted = formatted.replace(/find/gi, "\\text{find}");
-  formatted = formatted.replace(/f\((.*?)\)/g, "f($1)");
-  formatted = formatted.replace(/=/g, "=");
-
-  return `$$${formatted}$$`;
-}
-
 // --- PROBLEM GENERATION ---
 async function generateProblem() {
-  // Make model visible to both try and catch
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-
-  try {
-    const promptQuestion = `
-Generate ONE calculus question and answer in strict JSON format:
-{
-  "question": "<LaTeX-ready string for question>",
-  "answer": "<LaTeX-ready string for answer>"
-}
-
-Rules:
-1. The question must be ONE of the following types:
-   - Derivative of a polynomial function (degree ≤ 4)
-   - Derivative of a basic trigonometric function: sin(x), cos(x), tan(x)
-   - Definite integral of a simple polynomial or basic trig function with integer bounds
-2. Include numeric values for evaluation when needed (like f'(2) or integral from 0 to 3)
-3. Return the question and answer in **LaTeX-ready format** so no further formatting is needed
-4. Return **ONLY the JSON object**; nothing else.
-
-Examples of expected JSON output:
-
-{
-  "question": "f(x) = 3x^2 + 2x + 1, find f'(2)",
-  "answer": "14"
-}
-
-or 
-
-{
-  "question": "\\int_0^\\pi \\sin(x) \\, dx",
-  "answer": "2"
-}
+  
+  let questionType = '';
+  const num = Math.random() * 3;
+  console.log(num);
+  if (num < 1) {
+    questionType = `
+Rules for DERIVATIVE of a POLYNOMIAL:
+Look through these rules carefully before generating.
+1. Generate a polynomial function f(x) of degree 2 with random integer coefficients (between -5 and 5).
+   Example: f(x) = 2x^2 + 4x - 1
+2. Choose a random integer x-value between -5 and 5.
+3. Ask the question in this exact format:
+   "f(x) = <polynomial>, find f'(<integer value>)"
+   Example: "f(x) = 2x^2 + 4x - 1, find f'(2)"
+4. Compute the correct numerical derivative value f'(<value>).
+5. Output in valid JSON format:
+   {
+     "question": "f(x) = <LaTeX polynomial>, find f'(<value>)",
+     "answer": "<numeric result>"
+   }
+6. Do NOT include the derivative formula or explanation — only the question and numeric answer.
+7. Ensure the JSON is valid and LaTeX-ready (escape backslashes properly if any).
+8. Final Answers must be whole numbers (no fractions or decimals).
+9. If one condition is not met, try again
 `;
-
-    const result = await model.generateContent(promptQuestion);
-    const text = result.response.text().trim();
-
-    const cleaned = text.replace(/```json|```/g, "").trim();
-    const cleanedProblem = JSON.parse(cleaned);
-
-    console.log("✅ Gemini generated:", cleanedProblem);
-    return cleanedProblem;
-
-  } catch (err) {
-    console.error("⚠️ Gemini generation failed, using fallback:", err);
-
-    // --- fallback local generator (no model call here) ---
-    const a = Math.floor(Math.random() * 5) + 1;
-    const b = Math.floor(Math.random() * 5) + 1;
-    const x = Math.floor(Math.random() * 11) - 5;
-    const answer = 2 * a * x + b;
-
-    return {
-      question: `f(x) = ${a}x^2 + ${b}x + 1, find f'(${x})`,
-      answer,
-    };
   }
-}
+  else if (num < 2) {
+    questionType = `
+Rules for DERIVATIVE of a BASIC TRIGONOMETRIC FUNCTION:
+Look through these rules carefully before generating.
+1. Choose one trig base function at random: sin(x), cos(x), or tan(x).
+2. Optionally include a scalar coefficient (between -5 and 5, not zero).
+   Example: f(x) = 3sin(x), f(x) = -2cos(x)
+3. Optionally multiply the inner argument by an integer factor (1–3).
+   Example: sin(2x), cos(3x), etc.
+4. Choose a random integer x-value between 0 and π (inclusive) for evaluation.
+5. Ask the question in this exact format:
+   "f(x) = <function>, find f'(<numeric value>)"
+   Example: "f(x) = 2cos(3x), find f'(\\\\pi/3)"
+6. Compute the derivative numerically at that value.
+7. Output valid JSON:
+   {
+     "question": "f(x) = <LaTeX trig function>, find f'(<value>)",
+     "answer": "<numeric result>"
+   }
+8. The function and evaluation point should be LaTeX-ready (e.g. use \\\\pi, not 'pi').
+9. Escape all backslashes properly (e.g. \\\\\\\\pi, \\\\\\\\sin(x)).
+10. Final Answers must be whole numbers (no fractions or decimals).
+11. If one condition is not met, try again
+`;
+  }
+  else {
+    questionType = `
+Rules for DEFINITE INTEGRAL of a POLYNOMIAL FUNCTION:
+Look through these rules carefully before generating.
+1. Create a simple polynomial (degree 1–3) with integer coefficients between -5 and 5.
+   Example: 2x^2 - 3x + 1
+2. Choose integer bounds between -5 and 5 for the integral, ensuring the lower bound < upper bound.
+   Example: ∫₀³ (2x² - 3x + 1) dx
+3. Ask the question using this exact format:
+   "\\\\int_<lower>^<upper> <polynomial> \\\\, dx"
+   Example: "\\\\int_0^3 (2x^2 - 3x + 1) \\\\, dx"
+4. Compute the correct definite integral value (a single numeric result).
+5. Output valid JSON:
+   {
+     "question": "\\\\int_<lower>^<upper> <LaTeX polynomial> \\\\, dx",
+     "answer": "<numeric result>"
+   }
+6. Escape all backslashes properly so that the JSON is valid and LaTeX-ready.
+7. Do not include intermediate steps or explanations — only the question and numeric answer.
+8. Final Answers must be whole numbers (no fractions or decimals).
+9. If one condition is not met, try again
+`;
+  }
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+
+    try {
+
+      const result = await model.generateContent(questionType);
+      const text = result.response.text().trim();
+      const cleaned = text.replace(/```json|```/g, "").trim();
+
+      let parsed;
+      try {
+        parsed = JSON.parse(cleaned);
+      } catch (e) {
+        console.error("❌ JSON parse failed. Raw:", cleaned);
+        throw e;
+      }
+
+      const { question, answer } = parsed;
+      console.log("✅ Gemini generated:", question, answer);
+
+      return { question, answer };
+
+    } catch (err) {
+      const result = await model.generateContent(questionType);
+      const text = result.response.text().trim();
+      const cleaned = text.replace(/```json|```/g, "").trim();
+
+      let parsed;
+      try {
+        parsed = JSON.parse(cleaned);
+      } catch (e) {
+        console.error("❌ JSON parse failed. Raw:", cleaned);
+        throw e;
+      }
+
+      const { question, answer } = parsed;
+      console.log("✅ Gemini generated:", question, answer);
+
+      return { question, answer };
+    }
+  }
+
 
 
 // --- SERVER LISTEN ---

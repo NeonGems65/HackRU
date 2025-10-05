@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 
 import QuestionCard from "../components/QuestionCard";
 
-
 export default function LiveGame({ onGameEnd }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -27,7 +26,7 @@ export default function LiveGame({ onGameEnd }) {
   const [gameResults, setGameResults] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [currentPlayer, setCurrentPlayer] = useState(null);
-  const [gameState, setGameState] = useState("waiting"); // waiting, countdown, playing, finished
+  const [gameState, setGameState] = useState("waiting");
 
   const problemStartTime = useRef(null);
   const answerInputRef = useRef(null);
@@ -224,5 +223,3 @@ export default function LiveGame({ onGameEnd }) {
     );
   }
 }
-
-
