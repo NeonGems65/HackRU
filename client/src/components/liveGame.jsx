@@ -30,6 +30,7 @@ export default function LiveGame({ onGameEnd }) {
   const [currentPlayer, setCurrentPlayer] = useState(null);
   const [gameState, setGameState] = useState("waiting");
 
+
   const problemStartTime = useRef(null);
   const answerInputRef = useRef(null);
 
@@ -278,8 +279,9 @@ export default function LiveGame({ onGameEnd }) {
         </div>
 
         <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
-          <GlassSurface type="button" className="" onClick={playAgain}>Play Again</GlassSurface>
-          <GlassSurface type="button" className="" onClick={leaveRoom}>New Room</GlassSurface>
+          <GlassSurface>
+          <button type="button" style={{ ...buttonBaseStyle, padding: "12px 24px", fontSize: "16px", fontWeight: 700 }} className="" onClick={leaveRoom}>New Room</button>
+          </GlassSurface>
         </div>
       </div>
     );
