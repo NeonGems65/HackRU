@@ -9,7 +9,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // --- GEMINI CONFIG ---
 const GEMINI_API_KEY = "AIzaSyBTPo7ow_5wZZWiSadpFkDmG1SelAa8rWU";
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 // --- PATH SETUP ---
 const __filename = fileURLToPath(import.meta.url);
@@ -292,18 +292,19 @@ function formatMath(question) {
 
 // --- PROBLEM GENERATION ---
 async function generateProblem() {
-  try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+  // Make model visible to both try and catch
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
+  try {
     const promptQuestion = `
-Generate ONE derivative question and answer of this format:
+Generate ONE derivative question and answer in strict JSON format:
 {
   "question": "f(x) = 3x^2 + 2x + 1, find f'(2)",
   "answer": 14
 }
 
 Rules:
-- Ensure the answer is correct for the question and is an
+- Ensure the answer is correct for the question.
 - The function f(x) must be a polynomial (degree ≤ 4).
 - Pick a random integer x value between -5 and 5.
 - Calculate f'(x) correctly.
@@ -316,18 +317,25 @@ Rules:
     const cleaned = text.replace(/```json|```/g, "").trim();
     const problem = JSON.parse(cleaned);
 
-    console.log("Gemini generated:", problem);
+    console.log("✅ Gemini generated:", problem);
     return problem;
-  } catch (err) {
-    console.error("⚠️ Gemini generation failed, using fallback:", err.message);
 
-    const answer = await model.generateContent('Solve the following problem, provide only the numerical answer:', problem);
+  } catch (err) {
+    console.error("⚠️ Gemini generation failed, using fallback:", err);
+
+    // --- fallback local generator (no model call here) ---
+    const a = Math.floor(Math.random() * 5) + 1;
+    const b = Math.floor(Math.random() * 5) + 1;
+    const x = Math.floor(Math.random() * 11) - 5;
+    const answer = 2 * a * x + b;
+
     return {
       question: `f(x) = ${a}x^2 + ${b}x + 1, find f'(${x})`,
       answer,
     };
   }
 }
+
 
 // --- SERVER LISTEN ---
 const PORT = process.env.PORT || 3000;

@@ -4,6 +4,7 @@ export default function QuestionCard({ question }) {
   const containerRef = useRef(null);
 
   useEffect(() => {
+    // socket.removeAllListeners();
     if (!question && question !== 0) return;
 
     if (window.MathJax && containerRef.current) {
