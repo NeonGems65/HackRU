@@ -278,8 +278,8 @@ export default function LiveGame({ onGameEnd }) {
         </div>
 
         <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
-          <button type="button" className="btn" onClick={playAgain}>Play Again</button>
-          <button type="button" className="btn btn-secondary" onClick={leaveRoom}>New Room</button>
+          <GlassSurface type="button" className="" onClick={playAgain}>Play Again</GlassSurface>
+          <GlassSurface type="button" className="" onClick={leaveRoom}>New Room</GlassSurface>
         </div>
       </div>
     );
