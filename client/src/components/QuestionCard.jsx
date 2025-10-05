@@ -1,10 +1,27 @@
-import React from "react";
-import { MathComponent } from "mathjax-react"; // or react-katex if you’re using that
+import React, { useEffect, useRef } from "react";
 
 export default function QuestionCard({ question }) {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!question && question !== 0) return;
+
+    if (window.MathJax && containerRef.current) {
+      containerRef.current.innerHTML = `$$${question}$$`; // ensure LaTeX delimiters
+      window.MathJax.typesetPromise([containerRef.current]).catch((err) =>
+        console.error("MathJax typeset error:", err)
+      );
+    } else if (containerRef.current) {
+      containerRef.current.textContent = question;
+    }
+  }, [question]);
+
   return (
     <div className="p-4 border rounded-lg bg-white shadow">
-      <MathComponent tex={question} />
+      <div
+        ref={containerRef}
+        style={{ fontSize: "2rem", color: "#111" }}
+      />
     </div>
   );
 }

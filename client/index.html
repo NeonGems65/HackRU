@@ -8,6 +8,16 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- MathJax config + CDN (startup typeset disabled so we can typeset on demand) -->
+    <script>
+      window.MathJax = {
+        tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] },
+        options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'] },
+        startup: { typeset: false }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

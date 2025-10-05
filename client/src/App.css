@@ -96,6 +96,9 @@ body {
   border-radius: 20px;
   padding: 2rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+  max-width: 1000px; /* controls the width of the big box */
+  width: 90%;       /* makes it responsive */
 }
 
 /* Modern button styles */

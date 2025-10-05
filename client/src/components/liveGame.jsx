@@ -4,6 +4,8 @@ import socket from "../socket";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
+import QuestionCard from "../components/QuestionCard";
+
 
 export default function LiveGame({ onGameEnd }) {
   const location = useLocation();
@@ -148,7 +150,7 @@ export default function LiveGame({ onGameEnd }) {
             </div>
 
             <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-              <div style={{ fontSize: "3rem", fontWeight: "800", marginBottom: "1rem", textShadow: "0 0 20px rgba(255,255,255,0.3)" }}>{problem.question} = ?</div>
+              <QuestionCard question={`${problem.question} = ?`} />
 
               <div style={{ display: "flex", gap: "1rem", justifyContent: "center", alignItems: "center" }}>
                 <input ref={answerInputRef} className="input" type="number" value={answer} onChange={(e) => setAnswer(e.target.value)} onKeyPress={handleKeyPress} placeholder="Your answer" style={{ fontSize: "1.5rem", textAlign: "center", width: "200px" }} autoFocus />

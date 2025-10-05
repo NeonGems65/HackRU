@@ -123,7 +123,7 @@ export default function Lobby() {
 
   if (gameState === 'lobby') {
     return (
-      <div className="glass-card fade-in" style={{ maxWidth: '500px', width: '100%', position: 'relative' }}>
+      <div className="glass-card fade-in" style={{ maxWidth: '600px', width: '100%', position: 'relative' }}>
         {/* Test Button */}
         <button 
           onClick={testGame}
