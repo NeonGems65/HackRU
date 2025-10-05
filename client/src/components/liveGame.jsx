@@ -33,6 +33,7 @@ export default function LiveGame({ onGameEnd }) {
   const answerInputRef = useRef(null);
 
   useEffect(() => {
+    socket.removeAllListeners();
     console.log("LiveGame mounted, listening to server for room:", room);
 
     socket.on("new_problem", (newProblem) => {
@@ -76,11 +77,12 @@ export default function LiveGame({ onGameEnd }) {
     });
 
     socket.on("answer_incorrect", () => {
-      setFeedback({ type: "incorrect", message: "Wrong answer!" });
+      setFeedback({ type: "incorrect", message: "Poopie answer!" });
       setTimeout(() => setFeedback(null), 2000);
     });
 
     return () => {
+      socket.removeAllListeners();
       socket.off("new_problem");
       socket.off("room_update");
       socket.off("countdown");
@@ -94,8 +96,10 @@ export default function LiveGame({ onGameEnd }) {
 
   const submitAnswer = () => {
     if (!answer || !problem || !problemStartTime.current) return;
+    
     const timeSpent = Date.now() - problemStartTime.current;
     const userAnswer = parseInt(answer, 10);
+    console.log(userAnswer)
 
     console.log("submit_answer ->", { roomCode: room, answer: userAnswer, timeSpent });
     socket.emit("submit_answer", { roomCode: room, answer: userAnswer, timeSpent });

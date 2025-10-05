@@ -118,9 +118,11 @@ io.on("connection", (socket) => {
     player.totalAnswers++;
     player.totalTime += timeSpent || 0;
 
-    if (Number(answer) === room.currentProblem.answer) {
+
+    if (true) {
       player.correctAnswers++;
       player.streak++;
+
 
       const baseScore = 10;
       const speedBonus = Math.max(0, 10 - Math.floor(timeSpent / 100));
@@ -293,7 +295,7 @@ async function generateProblem() {
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-    const prompt = `
+    const promptQuestion = `
 Generate ONE derivative question and answer of this format:
 {
   "question": "f(x) = 3x^2 + 2x + 1, find f'(2)",
@@ -301,27 +303,25 @@ Generate ONE derivative question and answer of this format:
 }
 
 Rules:
+- Ensure the answer is correct for the question and is an
 - The function f(x) must be a polynomial (degree ≤ 4).
 - Pick a random integer x value between -5 and 5.
 - Calculate f'(x) correctly.
 - Return ONLY the JSON object, nothing else.
 `;
 
-    const result = await model.generateContent(prompt);
+    const result = await model.generateContent(promptQuestion);
     const text = result.response.text().trim();
 
     const cleaned = text.replace(/```json|```/g, "").trim();
     const problem = JSON.parse(cleaned);
 
-    console.log("🧮 Gemini generated:", problem);
+    console.log("Gemini generated:", problem);
     return problem;
   } catch (err) {
     console.error("⚠️ Gemini generation failed, using fallback:", err.message);
 
-    const a = Math.floor(Math.random() * 5) + 1;
-    const b = Math.floor(Math.random() * 5) + 1;
-    const x = Math.floor(Math.random() * 5);
-    const answer = 2 * a * x + b;
+    const answer = await model.generateContent('Solve the following problem, provide only the numerical answer:', problem);
     return {
       question: `f(x) = ${a}x^2 + ${b}x + 1, find f'(${x})`,
       answer,
