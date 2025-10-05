@@ -7,7 +7,6 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-var problem = null;
 // --- GEMINI CONFIG ---
 const GEMINI_API_KEY = "AIzaSyBTPo7ow_5wZZWiSadpFkDmG1SelAa8rWU";
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
@@ -39,7 +38,7 @@ const gameTimers = {};
 // --- SOCKET.IO EVENTS ---
 io.on("connection", (socket) => {
   console.log("🟢 Socket connected:", socket.id);
-
+  
   // --- JOIN ROOM ---
   socket.on("join_room", (roomCode, username) => {
     socket.join(roomCode);
@@ -48,7 +47,6 @@ io.on("connection", (socket) => {
     if (!rooms[roomCode]) {
       rooms[roomCode] = {
         players: {},
-        currentProblem: null,
         gameState: "waiting",
         roundNumber: 0,
         timeRemaining: 0,
@@ -110,19 +108,32 @@ io.on("connection", (socket) => {
   // --- SUBMIT ANSWER ---
   socket.on("submit_answer", ({ roomCode, answer, timeSpent }) => {
     console.log(answer);
-    console.log(problem)
-    console.log(problem.answer);
     const room = rooms[roomCode];
-    if (!room?.currentProblem || room.gameState !== "playing") return;
+    if (room.gameState !== "playing") {
+      console.log("❌ Game not playing, state:", room.gameState);
+      return
+    } ; // Remove the currentProblem check
 
     const player = room.players[socket.id];
-    if (!player) return;
+    if (!player) {
+      console.log("❌ Player not found");
+      return;
+    } // Check player's problem instead
+
+    if (!player.currentProblem) {
+      console.log("❌ Player has no current problem");
+      return;
+    }
+
+    console.log("🔍 Player's problem:", player.currentProblem);
+  console.log("🔍 Expected answer:", player.currentProblem.answer);
+  console.log("🔍 Player answer:", answer);
 
     player.totalAnswers++;
     player.totalTime += timeSpent || 0;
 
 
-    if (parseInt(answer) === parseInt(problem.answer)) {
+    if (parseInt(answer) === parseInt(player.currentProblem.answer)) {
       player.correctAnswers++;
       player.streak++;
       console.log("Correct answer by", player.username);
@@ -148,11 +159,10 @@ io.on("connection", (socket) => {
     (async () => {
       try {
         const nextProblem = await generateProblem();
-        problem = nextProblem
         const player = room.players[socket.id];
         if (!player) return;
-        player.currentProblem = nextProblem;
         player.roundNumber++;
+        player.currentProblem = nextProblem;
         io.to(socket.id).emit("new_problem", {
           ...nextProblem,
           roundNumber: player.roundNumber,
@@ -219,9 +229,11 @@ async function startGame(roomCode) {
     if (countdown < 0) {
       room.isCountingDown = false;
       clearInterval(countdownInterval);
-      const newProblem = await generateProblem();
-      room.currentProblem = newProblem;
-      io.to(roomCode).emit("new_problem", problem);
+
+      // const newProblem = await generateProblem();
+      // room.currentProblem = newProblem;
+      // io.to(roomCode).emit("new_problem", newProblem);
+
       io.to(roomCode).emit("game_started");
 
       room.timeRemaining = 90;
@@ -237,10 +249,9 @@ async function startGame(roomCode) {
         p.totalAnswers = 0;
         p.roundNumber = 1;
 
-        problem = await generateProblem();
-        const perPlayerProblem = problem;
         
         
+        const perPlayerProblem = await generateProblem();
         p.currentProblem = perPlayerProblem;
 
         io.to(playerSocketId).emit("new_problem", {

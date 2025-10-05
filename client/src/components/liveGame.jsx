@@ -39,7 +39,9 @@ export default function LiveGame({ onGameEnd }) {
     console.log("LiveGame mounted, listening to server for room:", room);
 
     socket.on("new_problem", (newProblem) => {
-      console.log("new_problem", newProblem);
+      console.log("🔍 CLIENT: Received new_problem:", newProblem);
+      console.log("🔍 CLIENT: Previous problem was:", problem);
+      console.log("🔍 CLIENT: Problem answer:", newProblem.answer);
       setProblem(newProblem);
       setAnswer("");
       problemStartTime.current = Date.now();
@@ -47,7 +49,7 @@ export default function LiveGame({ onGameEnd }) {
     });
 
     socket.on("room_update", (data) => {
-      console.log("room_update", data);
+      console.log("🔍 CLIENT: Received room_update:", data);
       if (data?.players) setPlayers(Object.values(data.players));
       if (typeof data?.timeRemaining === "number") setTimeRemaining(data.timeRemaining);
 
