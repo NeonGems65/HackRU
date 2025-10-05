@@ -20,7 +20,7 @@ export default function QuestionCard({ question }) {
     <div className="p-4 border rounded-lg bg-white shadow">
       <div
         ref={containerRef}
-        style={{ fontSize: "2rem", color: "#111" }}
+        style={{ fontSize: "2rem", color: "rgba(255, 255, 255, 1)fffff" }}
       />
     </div>
   );
