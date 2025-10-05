@@ -214,7 +214,7 @@ export default function Lobby() {
           
           <input
             className="input"
-            placeholder="Your Username"
+            placeholder="Nickname"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             style={{ width: '100%', boxSizing: 'border-box', height: '90px' }}
