@@ -366,14 +366,16 @@ export default function Lobby() {
                 🎉 All players ready! Click below to start the battle!
               </p>
             </div>
-            <ButtonGlass>
-              <button 
-                onClick={startGameNow}
-                style={{ ...buttonBaseStyle, padding: '12px 24px', fontSize: '16px', fontWeight: 700 }}
-              >
-                🚀 START BATTLE!
-              </button>
-            </ButtonGlass>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <ButtonGlass>
+                <button 
+                  onClick={startGameNow}
+                  style={{ ...buttonBaseStyle, padding: '12px 24px', fontSize: '16px', fontWeight: 700 }}
+                >
+                  🚀 START BATTLE!
+                </button>
+              </ButtonGlass>
+            </div>
           </div>
         )}
 
