@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import socket from "../socket";
+import GlassSurface from ""
+
 
 export default function Lobby() {
   const [gameState, setGameState] = useState('lobby'); // lobby, waiting
