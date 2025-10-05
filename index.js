@@ -7,6 +7,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+var problem = null;
 // --- GEMINI CONFIG ---
 const GEMINI_API_KEY = "AIzaSyBTPo7ow_5wZZWiSadpFkDmG1SelAa8rWU";
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
@@ -108,7 +109,9 @@ io.on("connection", (socket) => {
 
   // --- SUBMIT ANSWER ---
   socket.on("submit_answer", ({ roomCode, answer, timeSpent }) => {
-    console.log("submit answer moment");
+    console.log('sdlkfjsdlkfjs;ldjf')
+    console.log(answer);
+    console.log(problem.answer);
     const room = rooms[roomCode];
     if (!room?.currentProblem || room.gameState !== "playing") return;
 
@@ -119,9 +122,10 @@ io.on("connection", (socket) => {
     player.totalTime += timeSpent || 0;
 
 
-    if (true) {
+    if (answer === answer) {
       player.correctAnswers++;
       player.streak++;
+      console.log("Correct answer by", player.username);
 
 
       const baseScore = 10;
@@ -144,6 +148,7 @@ io.on("connection", (socket) => {
     (async () => {
       try {
         const nextProblem = await generateProblem();
+        problem = nextProblem
         const player = room.players[socket.id];
         if (!player) return;
         player.currentProblem = nextProblem;
@@ -233,6 +238,7 @@ async function startGame(roomCode) {
         p.roundNumber = 1;
 
         const perPlayerProblem = await generateProblem();
+    
         p.currentProblem = perPlayerProblem;
 
         io.to(playerSocketId).emit("new_problem", {

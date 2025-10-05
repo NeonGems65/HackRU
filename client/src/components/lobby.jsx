@@ -124,27 +124,6 @@ export default function Lobby() {
   if (gameState === 'lobby') {
     return (
       <div className="glass-card fade-in" style={{ maxWidth: '600px', width: '100%', position: 'relative' }}>
-        {/* Test Button */}
-        <button 
-          onClick={testGame}
-          style={{
-            position: 'absolute',
-            top: '1rem',
-            right: '1rem',
-            background: 'rgba(255, 193, 7, 0.2)',
-            border: '1px solid #ffc107',
-            borderRadius: '8px',
-            color: '#ffc107',
-            padding: '8px 12px',
-            fontSize: '12px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease'
-          }}
-        >
-          TEST GAME
-        </button>
-        
         <h1 className="title">🧮 Math Battle</h1>
         <p className="subtitle">Compete in multiplayer real-time math challenges</p>
         
