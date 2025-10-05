@@ -5,6 +5,8 @@ import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 import QuestionCard from "../components/QuestionCard";
+import GlassSurface from "./GlassSurface";
+import Prism from "./Prism";
 
 
 export default function LiveGame({ onGameEnd }) {
@@ -110,6 +112,17 @@ export default function LiveGame({ onGameEnd }) {
     if (e.key === "Enter" && gameState === "playing") submitAnswer();
   };
 
+  const buttonBaseStyle = {
+    background: 'transparent',
+    border: 'none',
+    color: 'white',
+    padding: '14px 18px',
+    fontSize: '18px',
+    fontWeight: 700,
+    borderRadius: '12px',
+    cursor: 'pointer'
+  };
+
   const leaveRoom = () => {
     if (room) socket.emit("leave_room", room);
     if (onGameEnd) onGameEnd();
@@ -124,7 +137,7 @@ export default function LiveGame({ onGameEnd }) {
 
   if (gameState === "countdown") {
     return (
-      <div className="glass-card fade-in" style={{ maxWidth: "700px", width: "100%" }}>
+      <div className=" fade-in" style={{ maxWidth: "700px", width: "100%" }}>
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
           <h1 className="title">Get Ready!</h1>
           <div style={{ fontSize: "6rem", fontWeight: "800", color: countdown === 1 ? "#ef4444" : "#ffffff", textShadow: "0 0 20px rgba(255,255,255,0.5)", margin: "2rem 0" }}>{countdown}</div>
@@ -134,15 +147,46 @@ export default function LiveGame({ onGameEnd }) {
     );
   }
 
+  // Small wrapper: glass surface that brightens on hover
+  function ButtonGlass({ children, glassProps = {}, className = '', fullWidth = false }) {
+    const [hover, setHover] = useState(false);
+    const baseStyle = { filter: hover ? 'brightness(1.3)' : 'brightness(1)', transition: 'filter 140ms ease' };
+    const mergedStyle = fullWidth ? { ...baseStyle, width: '100%', display: 'block' } : baseStyle;
+    return (
+      <GlassSurface
+        className={className}
+        style={mergedStyle}
+        {...glassProps}
+      >
+        <div style={{ width: fullWidth ? '100%' : undefined }} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+          {children}
+        </div>
+      </GlassSurface>
+    );
+  }
+
   if (gameState === "playing") {
     return (
-      <div className="glass-card fade-in" style={{ maxWidth: "700px", width: "100%" }}>
+      <div className="glass-card fade-in" style={{ width: "900px", height:"800px" }}>
+       <div style={{ width: '100%', height: '800px', position: 'absolute', zIndex: -1, top: 0, left: 0, overflow: 'hidden' }}>
+  <Prism
+    animationType="hover"
+    timeScale={0.5}
+    height={4.5}
+    baseWidth={5.5}
+    scale={3.6}
+    hueShift={0.96}
+    colorFrequency={4}
+    noise={0}
+    glow={0.6}
+  />
+</div>
         {problem && (
           <>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
               <div>
                 <h2 style={{ fontSize: "1.5rem", margin: 0 }}>Round {problem?.roundNumber || 1}</h2>
-                <div style={{ fontSize: "1.2rem", fontWeight: "600", color: timeRemaining <= 10 ? "#ef4444" : "#ffffff" }}>⏱️ {timeRemaining}s</div>
+                <div style={{ fontSize: "1.2rem", fontWeight: "600", color: timeRemaining <= 10 ? "#ffffffff" : "#cd9797ff" }}>⏱️ {timeRemaining}s</div>
               </div>
 
               {currentPlayer && (
@@ -153,12 +197,15 @@ export default function LiveGame({ onGameEnd }) {
               )}
             </div>
 
-            <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+            <div style={{ textAlign: "center", marginBottom: "2rem" , marginTop:"2rem"}}>
               <QuestionCard question={`${problem.question} = ?`} />
 
-              <div style={{ display: "flex", gap: "1rem", justifyContent: "center", alignItems: "center" }}>
+              <div style={{ marginTop:"2rem", display: "flex", gap: "1rem", justifyContent: "center", alignItems: "center" }}>
                 <input ref={answerInputRef} className="input" type="number" value={answer} onChange={(e) => setAnswer(e.target.value)} onKeyPress={handleKeyPress} placeholder="Your answer" style={{ fontSize: "1.5rem", textAlign: "center", width: "200px" }} autoFocus />
-                <button type="button" className="btn" onClick={submitAnswer} disabled={!answer}>Submit</button>
+                <ButtonGlass>
+                                  <button type="button"  style={{ ...buttonBaseStyle, padding: '8px 12px' }} onClick={submitAnswer} disabled={!answer}>Submit</button>
+
+                </ButtonGlass>
               </div>
             </div>
 
@@ -168,11 +215,11 @@ export default function LiveGame({ onGameEnd }) {
 
             <div style={{ marginTop: "2rem" }}>
               <h3 style={{ marginBottom: "1rem", textAlign: "center" }}>Live Leaderboard</h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem", alignItems: 'center', width: '100%' }}>
                 {players.sort((a, b) => b.score - a.score).map((player, index) => (
-                  <div key={index} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.75rem 1rem", background: player.username === username ? "rgba(102, 126, 234, 0.3)" : "rgba(255,255,255,0.05)", borderRadius: "12px", border: player.username === username ? "2px solid #667eea" : "1px solid rgba(255,255,255,0.1)" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <span style={{ fontSize: "1.2rem", fontWeight: "600", color: index === 0 ? "#ffd700" : index === 1 ? "#c0c0c0" : index === 2 ? "#cd7f32" : "#ffffff" }}>{index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `${index + 1}.`}</span>
+                  <div className="glass-card" key={index} style={{ width: '100%', maxWidth: '720px', display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.75rem 1rem", background: player.username === username ? "rgba(102, 126, 234, 0.3)" : "rgba(255,255,255,0.05)", borderRadius: "12px", border: player.username === username ? "2px solid #667eea" : "1px solid rgba(255,255,255,0.1)" }}>
+                    <div className="" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                      <span className="" style={{ fontSize: "1rem", fontWeight: "600", color: index === 0 ? "#ffd700" : index === 1 ? "#c0c0c0" : index === 2 ? "#cd7f32" : "#ffffff" }}>{index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `${index + 1}.`}</span>
                       <span style={{ fontWeight: "600" }}>{player.username}</span>
                       {player.username === username && <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.7)" }}>(You)</span>}
                     </div>
