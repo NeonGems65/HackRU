@@ -18,7 +18,7 @@ export default function QuestionCard({ question }) {
   }, [question]);
 
   return (
-    <div className="p-4 border rounded-lg bg-white shadow">
+    <div className="glassp-4 border rounded-lg shadow">
       <div
         ref={containerRef}
         style={{ fontSize: "2rem", color: "rgba(255, 255, 255, 1)fffff" }}

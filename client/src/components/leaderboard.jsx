@@ -66,7 +66,7 @@ export default function Leaderboard() {
 
   if (loading) {
     return (
-      <div className="glass-card fade-in" style={{ maxWidth: '600px', width: '100%' }}>
+      <div className="glass-card fade-in" style={{ maxWidth: '900px', width: '100%', padding: '2.5rem' }}>
         <div style={{ textAlign: 'center' }}>
           <h1 className="title">Loading Results...</h1>
           <div style={{ 
@@ -83,14 +83,14 @@ export default function Leaderboard() {
 
   if (!gameResults) {
     return (
-      <div className="glass-card fade-in" style={{ maxWidth: '600px', width: '100%' }}>
+      <div className="glass-card fade-in" style={{ maxWidth: '900px', width: '100%', padding: '2.5rem' }}>
         <div style={{ textAlign: 'center' }}>
           <h1 className="title">🏆 Leaderboard</h1>
           <p className="subtitle">No game results available</p>
           <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '2rem' }}>
             Play a game to see the leaderboard!
           </p>
-          <button className="btn" onClick={goToLobby}>
+          <button onClick={goToLobby}>
             Start New Game
           </button>
         </div>
@@ -99,7 +99,7 @@ export default function Leaderboard() {
   }
 
   return (
-    <div className="glass-card fade-in" style={{ maxWidth: '700px', width: '100%' }}>
+    <div className="glass-card fade-in" style={{ maxWidth: '900px', width: '100%', padding: '2.5rem' }}>
       <h1 className="title">🏆 Final Results</h1>
       
       <div style={{ marginBottom: '2rem' }}>
@@ -167,10 +167,10 @@ export default function Leaderboard() {
       </div>
 
       <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-        <button type="button" className="btn" onClick={playAgain}>
+  <button type="button" onClick={playAgain}>
           Play Again
         </button>
-        <button type="button" className="btn btn-secondary" onClick={goToLobby}>
+  <button type="button" onClick={goToLobby}>
           New Room
         </button>
       </div>

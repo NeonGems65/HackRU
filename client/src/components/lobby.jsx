@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import socket from "../socket";
+import GlassSurface from "./GlassSurface";
+import Prism from "./Prism";
 
 export default function Lobby() {
   const [gameState, setGameState] = useState('lobby'); // lobby, waiting
@@ -29,6 +31,36 @@ export default function Lobby() {
     setCurrentPlayer({ username: "TestPlayer", score: 0, streak: 0, isReady: true });
     // Navigate to game page
     navigate("/game");
+  };
+
+  // Small wrapper: glass surface that brightens on hover
+  function ButtonGlass({ children, glassProps = {}, className = '', fullWidth = false }) {
+    const [hover, setHover] = useState(false);
+    const baseStyle = { filter: hover ? 'brightness(1.3)' : 'brightness(1)', transition: 'filter 140ms ease' };
+    const mergedStyle = fullWidth ? { ...baseStyle, width: '100%', display: 'block' } : baseStyle;
+    return (
+      <GlassSurface
+        className={className}
+        style={mergedStyle}
+        {...glassProps}
+      >
+        <div style={{ width: fullWidth ? '100%' : undefined }} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+          {children}
+        </div>
+      </GlassSurface>
+    );
+  }
+
+  // base style to make inner buttons consistent and avoid global .btn styles
+  const buttonBaseStyle = {
+    background: 'transparent',
+    border: 'none',
+    color: 'white',
+    padding: '14px 18px',
+    fontSize: '18px',
+    fontWeight: 700,
+    borderRadius: '12px',
+    cursor: 'pointer'
   };
 
   useEffect(() => {
@@ -123,12 +155,49 @@ export default function Lobby() {
 
   if (gameState === 'lobby') {
     return (
-      <div className="glass-card fade-in" style={{ maxWidth: '600px', width: '100%', position: 'relative' }}>
-        <h1 className="title">🧮 Math Battle</h1>
+      <div>
+
+        <div style={{ width: '100%', height: '1000px', position: 'absolute', zIndex: -1, top: 0, left: 0, overflow: 'hidden' }}>
+  
+</div>
+
+
+       
+      <div className="glass-card fade-in" style={{background:"#000000", zIndex:1, height:"800px", maxWidth: '1200px', width: '900px', padding: '2.5rem' }}>
+
+<div style={{ width: '100%', height: '800px', position: 'absolute', zIndex: -1, top: 0, left: 0, overflow: 'hidden' }}>
+  <Prism
+    animationType="hover"
+    timeScale={0.5}
+    height={4.5}
+    baseWidth={5.5}
+    scale={3.6}
+    hueShift={0.96}
+    colorFrequency={4}
+    noise={0}
+    glow={0.6}
+  />
+</div>
+{/* <GlassSurface 
+  width={300} 
+  height={200}
+  borderRadius={24}
+  className="my-custom-class"
+>
+  <h2>Glass Surface Content</h2>
+</GlassSurface> */}
+
+
+        
+  <h1 className="title " style={{ fontSize: '3.5rem' }}>🧮 Math Battle</h1>
         <p className="subtitle">Compete in multiplayer real-time math challenges</p>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
+
+
+
+            
             <input
               className="input"
               placeholder="Room Code"
@@ -136,9 +205,9 @@ export default function Lobby() {
               onChange={(e) => setRoom(e.target.value.toUpperCase())}
               style={{ flex: 1 }}
             />
-            <button className="btn btn-secondary" onClick={generateRoomCode}>
-              Generate
-            </button>
+            <ButtonGlass>
+              <button onClick={generateRoomCode} style={{ ...buttonBaseStyle, padding: '8px 12px' }}>Generate</button>
+            </ButtonGlass>
           </div>
           
           <input
@@ -146,16 +215,18 @@ export default function Lobby() {
             placeholder="Your Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            style={{ width: '100%', boxSizing: 'border-box' }}
           />
           
-          <button 
-            className="btn" 
-            onClick={joinRoom}
-            disabled={!room || !username}
-            style={{ opacity: (!room || !username) ? 0.5 : 1 }}
-          >
-            Join Battle
-          </button>
+          <ButtonGlass fullWidth>
+            <button
+              onClick={joinRoom}
+              disabled={!room || !username}
+              style={{ ...buttonBaseStyle, opacity: (!room || !username) ? 0.5 : 1, width: '100%', boxSizing: 'border-box' }}
+            >
+              Join Battle
+            </button>
+          </ButtonGlass>
         </div>
 
       <div style={{ 
@@ -172,38 +243,44 @@ export default function Lobby() {
       </div>
 
         <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-          <button 
-            type="button"
-            className="btn btn-secondary" 
-            onClick={() => { console.log('View Leaderboard clicked'); goToLeaderboard(); }}
-            style={{ 
-              background: 'rgba(255, 255, 255, 0.1)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '12px',
-              color: 'white',
-              padding: '12px 24px',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease'
-            }}
-          >
-            View Leaderboard
-          </button>
+          <ButtonGlass glassProps={{ style: { display: 'inline-block' } }}>
+            <button
+              type="button"
+              onClick={() => { console.log('View Leaderboard clicked'); goToLeaderboard(); }}
+              style={{ ...buttonBaseStyle }}
+            >
+              View Leaderboard
+            </button>
+          </ButtonGlass>
         </div>
-      </div>
+        </div>
+
+    </div>
     );
   }
 
   if (gameState === 'waiting') {
     return (
-      <div className="glass-card fade-in" style={{ maxWidth: '600px', width: '100%' }}>
-        <h1 className="title">Waiting Room</h1>
-        <p className="subtitle">Room: {room}</p>
+      <div className="glass-card fade-in" style={{background:"#000000", zIndex:1, height:"800px", maxWidth: '1200px', width: '900px', padding: '2.5rem' }}>
+        <div style={{ width: '100%', height: '800px', position: 'absolute', zIndex: -1, top: 0, left: 0, overflow: 'hidden' }}>
+  <Prism
+    animationType="hover"
+    timeScale={0.5}
+    height={3.5}
+    baseWidth={5.5}
+    scale={3.6}
+    hueShift={0.96}
+    colorFrequency={4}
+    noise={0}
+    glow={0.6}
+  />
+</div>
         
-        <div style={{ marginBottom: '2rem' }}>
-          <h3 style={{ marginBottom: '1rem', color: 'rgba(255,255,255,0.9)' }}>
+        
+        <div style={{ marginBottom: '2rem', marginTop: '10rem' }}>
+          <h1 className="title">Waiting Room</h1>
+        <p className="subtitle">Room: {room}</p>
+          <h3 style={{ marginBottom: '1rem', color: 'rgba(255,255,255,0.9)', textAlign: 'center' }}>
             Players ({players.length}/8)
           </h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' }}>
@@ -257,62 +334,33 @@ export default function Lobby() {
             marginBottom: '1rem' 
           }}>
             {!currentPlayer.isReady ? (
-              <button 
-                className="btn" 
-                onClick={markReady}
-                style={{ 
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  border: 'none',
-                  borderRadius: '12px',
-                  color: 'white',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)'
-                }}
-              >
-                I'm Ready!
-              </button>
+              <ButtonGlass>
+                <button 
+                  onClick={markReady}
+                  style={{ ...buttonBaseStyle, boxShadow: 'none' }}
+                >
+                  I'm Ready!
+                </button>
+              </ButtonGlass>
             ) : (
-              <button 
-                className="btn" 
-                disabled
-                style={{ 
-                  background: '#6b7280',
-                  border: 'none',
-                  borderRadius: '12px',
-                  color: '#9ca3af',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'not-allowed',
-                  opacity: 0.6
-                }}
-              >
-                ✅ Ready!
-              </button>
+              <ButtonGlass>
+                <button
+                  disabled
+                  style={{ ...buttonBaseStyle, opacity: 0.6, cursor: 'not-allowed' }}
+                >
+                  ✅ Ready!
+                </button>
+              </ButtonGlass>
             )}
             
-            <button 
-              className="btn btn-secondary" 
-              onClick={leaveRoom}
-              style={{ 
-                background: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '12px',
-                color: 'white',
-                padding: '12px 24px',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-            >
-              Leave Room
-            </button>
+            <ButtonGlass>
+              <button
+                onClick={leaveRoom}
+                style={{ ...buttonBaseStyle }}
+              >
+                Leave Room
+              </button>
+            </ButtonGlass>
           </div>
         )}
 
@@ -329,29 +377,18 @@ export default function Lobby() {
                 🎉 All players ready! Click below to start the battle!
               </p>
             </div>
-            <button 
-              className="btn" 
-              onClick={startGameNow}
-              style={{ 
-                background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-                border: 'none',
-                borderRadius: '12px',
-                color: 'white',
-                padding: '14px 28px',
-                fontSize: '18px',
-                fontWeight: '700',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 6px 20px rgba(34, 197, 94, 0.4)',
-                animation: 'pulse 2s infinite'
-              }}
-            >
-              🚀 START BATTLE!
-            </button>
+            <ButtonGlass>
+              <button 
+                onClick={startGameNow}
+                style={{ ...buttonBaseStyle, padding: '12px 24px', fontSize: '16px', fontWeight: 700 }}
+              >
+                🚀 START BATTLE!
+              </button>
+            </ButtonGlass>
           </div>
         )}
 
-      </div>
+        </div>
     );
   }
 
