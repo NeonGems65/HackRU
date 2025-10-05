@@ -5,6 +5,8 @@ import socket from "../socket";
 import GlassSurface from "./GlassSurface";
 import Prism from "./Prism";
 
+
+
 export default function Lobby() {
   const [gameState, setGameState] = useState('lobby'); // lobby, waiting
   const [room, setRoom] = useState("");
@@ -189,7 +191,7 @@ export default function Lobby() {
 
 
         
-  <h1 className="title " style={{ fontSize: '3.5rem' }}>🧮 Math Battle</h1>
+  <h1 className="title " style={{ fontSize: '3.5rem' }}>Math Battle</h1>
         <p className="subtitle">Compete in multiplayer real-time math challenges</p>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
@@ -215,7 +217,7 @@ export default function Lobby() {
             placeholder="Your Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            style={{ width: '100%', boxSizing: 'border-box' }}
+            style={{ width: '100%', boxSizing: 'border-box', height: '90px' }}
           />
           
           <ButtonGlass fullWidth>
@@ -236,24 +238,11 @@ export default function Lobby() {
         margin: '0 auto'  // centers the list block on the page
       }}>
         <ul style={{ listStyleType: 'disc', paddingLeft: '1.5rem', lineHeight: '1.8' }}>
-          <li>Answer math problems as fast as possible.</li>
-          <li>Compete against other players in real-time.</li>
-          <li>Learn what it takes to become an expert mathematician.</li>
+          <li>Answer math problems as fast as possible</li>
+          <li>Compete against other players in real-time</li>
         </ul>
       </div>
-
-        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-          <ButtonGlass glassProps={{ style: { display: 'inline-block' } }}>
-            <button
-              type="button"
-              onClick={() => { console.log('View Leaderboard clicked'); goToLeaderboard(); }}
-              style={{ ...buttonBaseStyle }}
-            >
-              View Leaderboard
-            </button>
-          </ButtonGlass>
-        </div>
-        </div>
+      </div>
 
     </div>
     );
