@@ -111,6 +111,7 @@ io.on("connection", (socket) => {
   socket.on("submit_answer", ({ roomCode, answer, timeSpent }) => {
     console.log('sdlkfjsdlkfjs;ldjf')
     console.log(answer);
+    console.log(problem)
     console.log(problem.answer);
     const room = rooms[roomCode];
     if (!room?.currentProblem || room.gameState !== "playing") return;
@@ -122,7 +123,7 @@ io.on("connection", (socket) => {
     player.totalTime += timeSpent || 0;
 
 
-    if (answer === answer) {
+    if (answer === problem.answer) {
       player.correctAnswers++;
       player.streak++;
       console.log("Correct answer by", player.username);
@@ -219,8 +220,8 @@ async function startGame(roomCode) {
     if (countdown < 0) {
       room.isCountingDown = false;
       clearInterval(countdownInterval);
-      const problem = await generateProblem();
-      room.currentProblem = problem;
+      const newProblem = await generateProblem();
+      room.currentProblem = newProblem;
       io.to(roomCode).emit("new_problem", problem);
       io.to(roomCode).emit("game_started");
 
@@ -237,8 +238,10 @@ async function startGame(roomCode) {
         p.totalAnswers = 0;
         p.roundNumber = 1;
 
-        const perPlayerProblem = await generateProblem();
-    
+        problem = await generateProblem();
+        const perPlayerProblem = problem;
+        
+        
         p.currentProblem = perPlayerProblem;
 
         io.to(playerSocketId).emit("new_problem", {
@@ -303,28 +306,44 @@ async function generateProblem() {
 
   try {
     const promptQuestion = `
-Generate ONE derivative question and answer in strict JSON format:
+Generate ONE calculus question and answer in strict JSON format:
 {
-  "question": "f(x) = 3x^2 + 2x + 1, find f'(2)",
-  "answer": 14
+  "question": "<LaTeX-ready string for question>",
+  "answer": "<LaTeX-ready string for answer>"
 }
 
 Rules:
-- Ensure the answer is correct for the question.
-- The function f(x) must be a polynomial (degree ≤ 4).
-- Pick a random integer x value between -5 and 5.
-- Calculate f'(x) correctly.
-- Return ONLY the JSON object, nothing else.
+1. The question must be ONE of the following types:
+   - Derivative of a polynomial function (degree ≤ 4)
+   - Derivative of a basic trigonometric function: sin(x), cos(x), tan(x)
+   - Definite integral of a simple polynomial or basic trig function with integer bounds
+2. Include numeric values for evaluation when needed (like f'(2) or integral from 0 to 3)
+3. Return the question and answer in **LaTeX-ready format** so no further formatting is needed
+4. Return **ONLY the JSON object**; nothing else.
+
+Examples of expected JSON output:
+
+{
+  "question": "f(x) = 3x^2 + 2x + 1, find f'(2)",
+  "answer": "14"
+}
+
+or 
+
+{
+  "question": "\\int_0^\\pi \\sin(x) \\, dx",
+  "answer": "2"
+}
 `;
 
     const result = await model.generateContent(promptQuestion);
     const text = result.response.text().trim();
 
     const cleaned = text.replace(/```json|```/g, "").trim();
-    const problem = JSON.parse(cleaned);
+    const cleanedProblem = JSON.parse(cleaned);
 
-    console.log("✅ Gemini generated:", problem);
-    return problem;
+    console.log("✅ Gemini generated:", cleanedProblem);
+    return cleanedProblem;
 
   } catch (err) {
     console.error("⚠️ Gemini generation failed, using fallback:", err);
