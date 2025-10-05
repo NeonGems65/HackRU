@@ -79,7 +79,7 @@ export default function LiveGame({ onGameEnd }) {
     });
 
     socket.on("answer_incorrect", () => {
-      setFeedback({ type: "incorrect", message: "Poopie answer!" });
+      setFeedback({ type: "incorrect", message: "Incorrect answer!" });
       setTimeout(() => setFeedback(null), 2000);
     });
 
