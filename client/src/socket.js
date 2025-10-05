@@ -2,7 +2,7 @@
 import { io } from "socket.io-client";
 
 const BACKEND_URL = import.meta.env.PROD
-  ? "https://math-battle-backend.onrender.com"
+  ? "https://hackru-frontend.onrender.com/"
   : `http://${window.location.hostname}:3000`;
 
 //✅ LOCAL development
