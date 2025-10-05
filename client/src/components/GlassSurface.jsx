@@ -149,10 +149,14 @@ const GlassSurface = ({
     return div.style.backdropFilter !== '';
   };
 
+  const computedWidth = typeof width === 'number' ? `${width}px` : width;
+  const computedHeight = typeof height === 'number' ? `${height}px` : height;
+
   const containerStyle = {
+    // allow caller to override width/height via style prop
     ...style,
-    width: typeof width === 'number' ? `${width}px` : width,
-    height: typeof height === 'number' ? `${height}px` : height,
+    width: style && style.width ? style.width : computedWidth,
+    height: style && style.height ? style.height : computedHeight,
     borderRadius: `${borderRadius}px`,
     '--glass-frost': backgroundOpacity,
     '--glass-saturation': saturation,
