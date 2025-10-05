@@ -235,25 +235,40 @@ export default function LiveGame({ onGameEnd }) {
 
   if (gameState === "finished" && gameResults) {
     return (
-      <div className="glass-card fade-in" style={{ maxWidth: "600px", width: "100%" }}>
+      <div className="glass-card fade-in" style={{height:"800px", width: '900px', padding: '2.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
+        <div style={{ width: '100%', height: '800px', position: 'absolute', zIndex: -1, top: 0, left: 0, overflow: 'hidden' }}>
+  <Prism
+    animationType="hover"
+    timeScale={0.5}
+    height={4.5}
+    baseWidth={5.5}
+    scale={3.6}
+    hueShift={0.96}
+    colorFrequency={4}
+    noise={0}
+    glow={0.6}
+  />
+</div>
         <h1 className="title">🏆 Game Over!</h1>
 
-        <div style={{ marginBottom: "2rem" }}>
-          <h3 style={{ marginBottom: "1rem", textAlign: "center" }}>Final Results</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            {gameResults.rankings.map((player, index) => (
-              <div key={index} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem", background: index === 0 ? "rgba(255, 215, 0, 0.2)" : "rgba(255,255,255,0.05)", borderRadius: "12px", border: index === 0 ? "2px solid #ffd700" : "1px solid rgba(255,255,255,0.1)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span style={{ fontSize: "1.5rem", fontWeight: "800", color: index === 0 ? "#ffd700" : index === 1 ? "#c0c0c0" : index === 2 ? "#cd7f32" : "#ffffff" }}>{index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `${index + 1}.`}</span>
-                  <span style={{ fontWeight: "600", fontSize: "1.1rem" }}>{player.username}</span>
-                  {player.username === username && <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.7)" }}>(You)</span>}
+        <div style={{ marginBottom: "2rem", width: '100%', display: 'flex', justifyContent: 'center' }}>
+          <div style={{ width: '100%', maxWidth: '720px' }}>
+            <h3 style={{ marginBottom: "1rem", textAlign: "center" }}>Final Results</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              {gameResults.rankings.map((player, index) => (
+                <div key={index} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem", background: index === 0 ? "rgba(255, 215, 0, 0.2)" : "rgba(255,255,255,0.05)", borderRadius: "12px", border: index === 0 ? "2px solid #ffd700" : "1px solid rgba(255,255,255,0.1)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <span style={{ fontSize: "1.5rem", fontWeight: "800", color: index === 0 ? "#ffd700" : index === 1 ? "#c0c0c0" : index === 2 ? "#cd7f32" : "#ffffff" }}>{index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `${index + 1}.`}</span>
+                    <span style={{ fontWeight: "600", fontSize: "1.1rem" }}>{player.username}</span>
+                    {player.username === username && <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.7)" }}>(You)</span>}
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontWeight: "600", fontSize: "1.1rem" }}>{player.score} pts</div>
+                    <div style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.7)" }}>{player.correctAnswers}/{player.totalAnswers} correct</div>
+                  </div>
                 </div>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ fontWeight: "600", fontSize: "1.1rem" }}>{player.score} pts</div>
-                  <div style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.7)" }}>{player.correctAnswers}/{player.totalAnswers} correct</div>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
