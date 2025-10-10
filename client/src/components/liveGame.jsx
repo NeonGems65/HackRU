@@ -50,11 +50,15 @@ export default function LiveGame({ onGameEnd }) {
 
     socket.on("room_update", (data) => {
       console.log("🔍 CLIENT: Received room_update:", data);
+      // ✅ CRITICAL FIX: Only update players and time, NEVER touch the current problem
       if (data?.players) setPlayers(Object.values(data.players));
       if (typeof data?.timeRemaining === "number") setTimeRemaining(data.timeRemaining);
 
       const me = data?.players ? Object.values(data.players).find((p) => p.username === username) : null;
       setCurrentPlayer(me);
+      
+      // ✅ NEVER update the problem state from room_update - only from new_problem events
+      console.log("🔍 CLIENT: Room update received, but problem state preserved");
     });
 
     socket.on("countdown", (num) => {
