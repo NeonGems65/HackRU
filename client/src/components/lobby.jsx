@@ -46,44 +46,41 @@ export default function Lobby() {
 
   const innerCenterStyle = { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%" };
   const controlsWidthStyle = { width: "100%", maxWidth: "600px" };
-  const buttonBaseStyle = { background: "transparent", border: "none", color: "white", padding: "14px 18px", fontSize: "18px", fontWeight: 700, borderRadius: "12px", cursor: "pointer" };
+  const buttonBaseStyle = { background: "transparent", border: "none", color: "white", padding: "14px 18px", 
+    fontSize: "18px", fontWeight: 700, borderRadius: "12px", cursor: "pointer" };
 
   if (gameState === "lobby") {
     return (
       <div>
-        <div style={{ width: "100%", height: "100vh", position: "absolute", zIndex: -1, top: 0, left: 0, overflow: "hidden" }} />
+        <div className="w-screen h-screen absolute z-[-1] top-0 left-0 hidden "
+         />
 
-        <div className="glass-card fade-in" style={{ background: "#000000", zIndex: 1, height: "800px", maxWidth: "1200px", width: "900px", padding: "2.5rem" }}>
-          <div style={innerCenterStyle}>
-            <div style={{ position: "absolute", inset: 0, zIndex: -1, overflow: "hidden" }}>
-              <Prism animationType="hover" timeScale={0.5} height={4.5} baseWidth={5.5} scale={3.6} hueShift={0.96} colorFrequency={4} noise={0} glow={0.6} />
+        <div className="glass-card fade-in bg-[#000000] z-[1]  w-screen h-screen p-[2.5rem]">
+          <div className="h-full justify-center flex flex-col items-center">
+            <div className="absolute inset-0 overflow-hidden z-[-1] ">
+              <Prism className="" animationType="hover" timeScale={0.5} height={4.5} baseWidth={5.5} scale={3.6} hueShift={0.96} colorFrequency={4} noise={0} glow={0.6} />
             </div>
 
-            <h1 className="title" style={{ fontSize: "3.5rem" }}>Math Battle</h1>
+            <h1 className="title font-[3.5rem]" >Math Battle</h1>
             <p className="subtitle">Compete in multiplayer real-time math challenges</p>
 
-            <div style={{ ...controlsWidthStyle, display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "2rem" }}>
-              <div style={{ display: "flex", gap: "0.5rem" }}>
-                <input className="input" placeholder="Room Code" value={room} onChange={(e) => setRoom(e.target.value.toUpperCase())} style={{ flex: 1 }} />
+             
+            <div className="w-[100%] max-w-[600px] flex-col flex gap-[1rem] mb-[2rem]">
+              <div className="flex gap-[0.5rem]">
+                <input className="input flex-1" placeholder="Room Code" value={room} onChange={(e) => setRoom(e.target.value.toUpperCase())}  />
                 <GlassSurface>
-                  <button onClick={generateRoomCode} style={{ ...buttonBaseStyle, padding: "8px 12px" }}>Generate</button>
+                  <button onClick={generateRoomCode} className="pl-[8x] pr-[12px] button" >Generate</button>
                 </GlassSurface>
               </div>
 
-              <input className="input" placeholder="Nickname" value={username} onChange={(e) => setUsername(e.target.value)} style={{ width: "100%", boxSizing: "border-box", height: "90px" }} />
+              <input className="input w-[100%] box-border h-[90px]" placeholder="Nickname" value={username} onChange={(e) => setUsername(e.target.value)}  />
 
-              <GlassSurface
-              width={600}>
-                <button onClick={joinRoom} disabled={!room || !username} style={{ ...buttonBaseStyle, opacity: !room || !username ? 0.5 : 1, width: '100%', boxSizing: 'border-box' }}>Join Battle</button>
+              <GlassSurface width={600}>
+                <button className="w-[100%] border-box button" onClick={joinRoom} disabled={!room || !username} style={{opacity: !room || !username ? 0.5 : 1 }}>Join Battle</button>
               </GlassSurface>
             </div>
 
-            <div style={{ textAlign: "left", color: "rgba(255,255,255,0.7)", maxWidth: "400px", margin: "0 auto" }}>
-              <ul style={{ listStyleType: "disc", paddingLeft: "1.5rem", lineHeight: "1.8" }}>
-                <li>Answer math problems as fast as possible</li>
-                <li>Compete against other players in real-time</li>
-              </ul>
-            </div>
+             
           </div>
         </div>
       </div>

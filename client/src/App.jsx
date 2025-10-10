@@ -11,7 +11,7 @@ export default function App() {
   return (
     <div className="app">
       {/* Fullscreen animated background - sits behind all UI */}
-      <div className="fixed inset-0 -z-10 pointer-events-none w-full h-full overflow-hidden">
+      <div className="fixed inset-0 -z-10 pointer-events-none w-screen h-screen overflow-hidden">
         {/* <PrismaticBurst
           animationType="rotate3d"
           intensity={2}
