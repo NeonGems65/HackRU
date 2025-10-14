@@ -143,7 +143,7 @@ export default function LiveGame({ onGameEnd }) {
 
   if (gameState === "countdown") {
     return (
-      <div className=" fade-in" style={{ maxWidth: "700px", width: "100%" }}>
+      <div className=" fade-in w-[100%]" style={{ maxWidth: "700px", width: "100%" }}>
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
           <h1 className="title">Get Ready!</h1>
           <div style={{ fontSize: "6rem", fontWeight: "800", color: countdown === 1 ? "#ef4444" : "#ffffff", textShadow: "0 0 20px rgba(255,255,255,0.5)", margin: "2rem 0" }}>{countdown}</div>
@@ -173,7 +173,8 @@ export default function LiveGame({ onGameEnd }) {
 
   if (gameState === "playing") {
     return (
-      <div className="glass-card fade-in" style={{ width: "900px", height:"800px" }}>
+      <div className="glass-card fade-in w-screen" style={{ width: "scren", height:"800px" }}>
+       
        <div style={{ width: '100%', height: '800px', position: 'absolute', zIndex: -1, top: 0, left: 0, overflow: 'hidden' }}>
   <Prism
     animationType="hover"
@@ -242,8 +243,8 @@ export default function LiveGame({ onGameEnd }) {
 
   if (gameState === "finished" && gameResults) {
     return (
-      <div className="glass-card fade-in" style={{height:"800px", width: '900px', padding: '2.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
-        <div style={{ width: '100%', height: '800px', position: 'absolute', zIndex: -1, top: 0, left: 0, overflow: 'hidden' }}>
+      <div className="glass-card fade-in h-screen w-screen flex flex-col items-center justify-center">
+        <div className="w-screen h-screen absolute z-[-1] top-0 bottom-0 left-0 overflow-hidden ">
   <Prism
     animationType="hover"
     timeScale={0.5}
@@ -258,7 +259,8 @@ export default function LiveGame({ onGameEnd }) {
 </div>
         <h1 className="title">🏆 Game Over!</h1>
 
-        <div style={{ marginBottom: "2rem", width: '100%', display: 'flex', justifyContent: 'center' }}>
+        <div className="mb-[2rem] w-[100%} flex justify-center"
+       >
           <div style={{ width: '100%', maxWidth: '720px' }}>
             <h3 style={{ marginBottom: "1rem", textAlign: "center" }}>Final Results</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>

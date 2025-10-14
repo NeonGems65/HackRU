@@ -90,24 +90,30 @@ export default function Lobby() {
   if (gameState === "waiting") {
     return (
       <div>
-        <div style={{ width: "100%", height: "100vh", position: "absolute", zIndex: -1, top: 0, left: 0, overflow: "hidden" }} />
+        <div className="w-[100%] h-[100vh] absolute z-[-1] top-0 left-0 overflow-hidden " />
 
-        <div className="glass-card fade-in" style={{ background: "#000000", zIndex: 1, height: "800px", maxWidth: "1200px", width: "900px", padding: "2.5rem" }}>
-          <div style={innerCenterStyle}>
-            <div style={{ position: "absolute", inset: 0, zIndex: -1, overflow: "hidden" }}>
+        <div className="glass-card fade-in background-[#000000] z-[1]  w-screen h-screen p-[2.5rem]">
+          <div className="h-full justify-center flex flex-col items-center" >
+            <div className="absolute inset-0 overflow-hidden z-[-1] ">
               <Prism animationType="hover" timeScale={0.5} height={3.5} baseWidth={5.5} scale={3.6} hueShift={0.96} colorFrequency={4} noise={0} glow={0.6} />
             </div>
 
-            <div style={{ marginBottom: "2rem" }}>
-              <h1 className="title">Waiting Room</h1>
+            <div className="mb-8" >
+              <h1 className="title  ">Waiting Room</h1>
               <p className="subtitle">Room: {room}</p>
-              <h3 style={{ marginBottom: "1rem", color: "rgba(255,255,255,0.9)", textAlign: "center" }}>Players ({players.length}/8)</h3>
+              <h3 className="mb-8 text-center" >Players ({players.length}/8)</h3>
 
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", justifyContent: "center" }}>
+              <div className="flex flex-wrap gap-[0.5rem] justify-center">
                 {players.map((player, index) => (
-                  <div key={index} style={{ background: player.isReady ? "rgba(34, 197, 94, 0.2)" : "rgba(255,255,255,0.1)", padding: "0.75rem 1rem", borderRadius: "20px", border: player.isReady ? "2px solid #22c55e" : "2px solid rgba(255,255,255,0.2)", transition: "all 0.3s ease", transform: player.isReady ? "scale(1.05)" : "scale(1)" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                      <span style={{ fontSize: "1.2rem", fontWeight: "600", color: player.isReady ? "#22c55e" : "#ffffff" }}>{player.isReady ? "✅" : "⏳"}</span>
+                  <div key={index} className="p-[20px] border-[20px] rounded-lg "
+                   style={{ background: player.isReady ? "rgba(34, 197, 94, 0.2)" : "rgba(255,255,255,0.1)", 
+                   border: player.isReady ? "2px solid #22c55e" : "2px solid rgba(255,255,255,0.2)", 
+                   transition: "all 0.3s ease", 
+                   transform: player.isReady ? "scale(1.05)" : "scale(1)" }}>
+
+                    <div className="flex items-center gap-[0.5rem]"> 
+                      <span className="text-[1.2rem] font-[600]"
+                      style={{ color: player.isReady ? "#22c55e" : "#ffffff" }}>{player.isReady ? "✅" : "⏳"}</span>
                       <span style={{ fontWeight: "600", color: player.isReady ? "#22c55e" : "#ffffff" }}>{player.username}</span>
                       {player.isReady && <span style={{ fontSize: "0.8rem", color: "#22c55e", fontWeight: "500" }}>READY</span>}
                     </div>
