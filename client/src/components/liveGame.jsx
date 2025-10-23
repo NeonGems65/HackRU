@@ -173,9 +173,9 @@ export default function LiveGame({ onGameEnd }) {
 
   if (gameState === "playing") {
     return (
-      <div className="glass-card fade-in w-screen" style={{ width: "scren", height:"800px" }}>
+      <div className="glass-card fade-in w-screen h-screen" >
        
-       <div style={{ width: '100%', height: '800px', position: 'absolute', zIndex: -1, top: 0, left: 0, overflow: 'hidden' }}>
+       <div style={{ width: '100%', height: '100%', position: 'absolute', zIndex: -1, top: 0, left: 0, overflow: 'hidden' }}>
   <Prism
     animationType="hover"
     timeScale={0.5}
@@ -261,7 +261,7 @@ export default function LiveGame({ onGameEnd }) {
 
         <div className="mb-[2rem] w-[100%} flex justify-center"
        >
-          <div style={{ width: '100%', maxWidth: '720px' }}>
+          <div className="w-[100%] max-w-[720px]" >
             <h3 style={{ marginBottom: "1rem", textAlign: "center" }}>Final Results</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               {gameResults.rankings.map((player, index) => (
