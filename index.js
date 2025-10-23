@@ -1,4 +1,5 @@
 // index.js
+require('dotenv').config();
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
@@ -8,7 +9,7 @@ import { fileURLToPath } from "url";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // --- GEMINI CONFIG ---
-const GEMINI_API_KEY = "AIzaSyBTPo7ow_5wZZWiSadpFkDmG1SelAa8rWU";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 // --- PATH SETUP ---
